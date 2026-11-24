@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Management System</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --navy: #17283d;
+    --navy-light: #223951;
+    --teal: #39877e;
+    --teal-light: #e5f1ee;
+    --paper: #f5f6f3;
+    --white: #ffffff;
+    --ink: #263746;
+    --muted: #87929b;
+    --line: #e9edeb;
+    --red: #c65d5d;
+    --shadow: 0 8px 30px rgba(28, 48, 64, .06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+}
+
+button, input, select, textarea { font: inherit; }
+
+.app { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    background: var(--navy);
+    color: white;
+    padding: 30px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.brand {
+    padding: 0 12px 32px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+.brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--teal);
+    display: grid;
+    place-items: center;
+    font-family: Manrope;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.brand h2 {
+    font-family: Manrope;
+    font-size: 17px;
+    line-height: 1.35;
+    margin: 0;
+    font-weight: 800;
+}
+
+.brand p {
+    font-size: 11px;
+    color: #a9b7c4;
+    margin: 7px 0 0;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.nav-label {
+    color: #8295a7;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    padding: 28px 13px 12px;
+}
+
+.nav-btn {
+    border: 0;
+    background: transparent;
+    color: #b9c6d1;
+    width: 100%;
+    padding: 12px 14px;
+    text-align: left;
+    border-radius: 8px;
+    margin: 3px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+    background: var(--navy-light);
+    color: white;
+}
+
+.nav-btn.active {
+    box-shadow: inset 3px 0 var(--teal);
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 17px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,.12);
+    padding: 20px 12px 0;
+    color: #a9b7c4;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* MAIN */
+
+.main {
+    flex: 1;
+    min-width: 0;
+}
+
+.topbar {
+    height: 75px;
+    background: white;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 38px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.breadcrumb strong { color: var(--ink); }
+
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.system-status {
+    font-size: 11px;
+    color: var(--teal);
+    background: var(--teal-light);
+    padding: 7px 12px;
+    border-radius: 30px;
+}
+
+.profile {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e6eeeb;
+    color: var(--teal);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.content {
+    padding: 34px 38px 50px;
+    max-width: 1500px;
+    margin: auto;
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 27px;
+}
+
+.eyebrow {
+    color: var(--teal);
+    font-size: 10px;
+    letter-spacing: 1.7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+h1, h2, h3 {
+    font-family: Manrope, sans-serif;
+}
+
+h1 {
+    font-size: 27px;
+    margin: 0;
+    letter-spacing: -.8px;
+    color: var(--navy);
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+/* BUTTONS */
+
+.btn {
+    border: 0;
+    border-radius: 7px;
+    padding: 11px 17px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-primary {
+    background: var(--teal);
+    color: white;
+}
+
+.btn-primary:hover { background: #2e7068; }
+
+.btn-light {
+    background: white;
+    border: 1px solid var(--line);
+    color: var(--ink);
+}
+
+.btn-light:hover { background: #f0f4f2; }
+
+.btn-danger {
+    background: #fff0ef;
+    color: var(--red);
+}
+
+/* DASHBOARD */
+
+.welcome-panel {
+    background: var(--navy);
+    color: white;
+    border-radius: 12px;
+    padding: 29px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 23px;
+    overflow: hidden;
+}
+
+.welcome-panel h2 {
+    font-size: 21px;
+    margin: 0 0 8px;
+}
+
+.welcome-panel p {
+    font-size: 12px;
+    color: #c1ccd5;
+    margin: 0;
+}
+
+.welcome-date {
+    color: #d6e4df;
+    font-size: 12px;
+    text-align: right;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.stat-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--teal-light);
+    color: var(--teal);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+}
+
+.stat-number {
+    font-family: Manrope;
+    font-size: 29px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-top: 15px;
+}
+
+.stat-note {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 19px 22px;
+    border-bottom: 1px solid var(--line);
+}
+
+.panel-header h3 {
+    font-size: 14px;
+    margin: 0;
+    color: var(--navy);
+}
+
+.panel-header span {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* TABLES */
+
+.table-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+th {
+    background: #fafbf9;
+    color: #8b969e;
+    font-size: 10px;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: left;
+    padding: 14px 20px;
+}
+
+td {
+    padding: 15px 20px;
+    border-top: 1px solid #f0f2ef;
+    font-size: 12px;
+    color: #53616c;
+}
+
+tbody tr:hover { background: #fbfcfa; }
+
+.primary-cell {
+    color: var(--navy);
+    font-weight: 600;
+}
+
+.action-cell { display: flex; gap: 7px; }
+
+.small-btn {
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 5px;
+    padding: 6px 9px;
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--ink);
+}
+
+.small-btn:hover { background: var(--teal-light); }
+
+.small-btn.delete { color: var(--red); }
+
+.empty {
+    text-align: center;
+    padding: 35px;
+    color: var(--muted);
+}
+
+/* SEARCH */
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 10px 13px;
+    background: white;
+    font-size: 12px;
+    outline: none;
+    width: 220px;
+}
+
+.search:focus, .field input:focus, .field select:focus,
+.field textarea:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(57,135,126,.10);
+}
+
+/* MODAL */
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 34, 49, .55);
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-backdrop.show { display: flex; }
+
+.modal {
+    width: 100%;
+    max-width: 510px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.2);
+}
+
+.modal-header {
+    padding: 22px 25px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 17px;
+    margin: 0;
+    color: var(--navy);
+}
+
+.close-btn {
+    background: none;
+    border: 0;
+    color: var(--muted);
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.modal-body { padding: 23px 25px; }
+
+.field { margin-bottom: 15px; }
+
+.field label {
+    display: block;
+    font-size: 11px;
+    color: #66747e;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+.field input, .field select, .field textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 11px 12px;
+    outline: none;
+    font-size: 12px;
+    color: var(--ink);
+    background: white;
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 75px;
+}
+
+.modal-footer {
+    padding: 17px 25px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+}
+
+.message {
+    display: none;
+    padding: 12px 15px;
+    border-radius: 7px;
+    margin-bottom: 15px;
+    font-size: 12px;
+}
+
+.message.show { display: block; }
+.message.error { background: #fff0ef; color: #a74747; }
+.message.success { background: var(--teal-light); color: #286c61; }
+
+.loading {
+    padding: 35px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+/* Dashboard card hover animation */
+.stat-card {
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(25, 45, 70, 0.14);
+    border-color: #7da9a3;
+}
+
+/* Smooth icon movement */
+.stat-card .stat-icon {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.12) rotate(-5deg);
+}
+
+/* Dashboard panels */
+.panel {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(25, 45, 70, 0.09);
+}
+
+/* Smooth button interaction */
+button {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(25, 45, 70, 0.15);
+}
+
+@media(max-width: 950px) {
+    .sidebar { width: 205px; }
+    .content { padding: 25px 20px; }
+    .topbar { padding: 0 20px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 650px) {
+    .app { display: block; }
+    .sidebar { width: 100%; padding: 15px; }
+    .brand { padding: 0 5px 12px; }
+    .brand-mark { display: none; }
+    .brand h2 { font-size: 15px; }
+    .nav-label, .sidebar-bottom { display: none; }
+    .sidebar nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 5px;
+        padding-top: 12px;
+    }
+    .nav-btn { width: auto; flex-shrink: 0; padding: 9px; }
+    .topbar { height: 55px; }
+    .content { padding: 22px 14px; }
+    .stats { gap: 9px; }
+    .stat-card { padding: 14px; }
+    .stat-number { font-size: 23px; }
+    .page-heading { align-items: flex-start; flex-direction: column; }
+    .welcome-date { display: none; }
+    .toolbar { width: 100%; }
+    .search { flex: 1; min-width: 0; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-mark">E</div>
+        <h2>Event Management<br>System</h2>
+        <p>Management Portal</p>
+    </div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <nav>
+        <button class="nav-btn active" data-page="dashboard">
+            <span class="nav-icon">⌂</span> Dashboard
+        </button>
+        <button class="nav-btn" data-page="venues">
+            <span class="nav-icon">▦</span> Venues
+        </button>
+        <button class="nav-btn" data-page="events">
+            <span class="nav-icon">▣</span> Events
+        </button>
+        <button class="nav-btn" data-page="attendees">
+            <span class="nav-icon">♙</span> Attendees
+        </button>
+        <button class="nav-btn" data-page="registrations">
+            <span class="nav-icon">☷</span> Registrations
+        </button>
+        <button class="nav-btn" data-page="details">
+            <span class="nav-icon">≡</span> Registration Details
+        </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+        EVENT MANAGEMENT SYSTEM<br>
+        <span>Backend Administration Portal</span>
+    </div>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <div class="breadcrumb">Workspace / <strong id="breadcrumb">Dashboard</strong></div>
+        <div class="top-right">
+            <span class="system-status">● System interface</span>
+            <div class="profile">EM</div>
+        </div>
+    </header>
+
+    <section class="content">
+        <div id="message" class="message"></div>
+        <div id="pageContent"></div>
+    </section>
+</main>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add record</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <form id="recordForm">
+            <div class="modal-body" id="formFields"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveBtn">Save record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const API = {
+    venues: "/venues/",
+    events: "/events/",
+    attendees: "/attendees/",
+    registrations: "/registrations/",
+    details: "/registrations/details"
+};
+
+const configs = {
+    venues: {
+        title: "Venues",
+        subtitle: "Manage event locations and venue capacity.",
+        singular: "Venue",
+        columns: [
+            ["id", "ID"], ["name", "Venue Name"], ["address", "Address"],
+            ["city", "City"], ["capacity", "Capacity"]
+        ],
+        fields: [
+            ["name", "Venue Name", "text", true],
+            ["address", "Address", "text", true],
+            ["city", "City", "text", true],
+            ["capacity", "Capacity", "number", true]
+        ]
+    },
+    events: {
+        title: "Events",
+        subtitle: "Create, organise and manage your scheduled events.",
+        singular: "Event",
+        columns: [
+            ["id", "ID"], ["name", "Event Name"], ["venue_id", "Venue ID"],
+            ["event_date", "Event Date"], ["capacity", "Capacity"]
+        ],
+        fields: [
+            ["venue_id", "Venue", "venue", true],
+            ["name", "Event Name", "text", true],
+            ["description", "Description", "textarea", false],
+            ["event_date", "Event Date & Time", "datetime-local", true],
+            ["capacity", "Capacity", "number", true]
+        ]
+    },
+    attendees: {
+        title: "Attendees",
+        subtitle: "Maintain attendee information and contact records.",
+        singular: "Attendee",
+        columns: [
+            ["id", "ID"], ["name", "Full Name"], ["email", "Email"],
+            ["phone", "Phone"]
+        ],
+        fields: [
+            ["name", "Full Name", "text", true],
+            ["email", "Email Address", "email", true],
+            ["phone", "Phone Number", "text", false]
+        ]
+    },
+    registrations: {
+        title: "Registrations",
+        subtitle: "Manage attendee registrations for your events.",
+        singular: "Registration",
+        columns: [
+            ["id", "ID"], ["event_id", "Event ID"],
+            ["attendee_id", "Attendee ID"],
+            ["registration_date", "Registration Date"], ["status", "Status"]
+        ],
+        fields: [
+            ["event_id", "Event", "event", true],
+            ["attendee_id", "Attendee", "attendee", true],
+            ["registration_date", "Registration Date", "datetime-local", true],
+            ["status", "Status", "select-status", true]
+        ]
+    }
+};
+
+let currentPage = "dashboard";
+let currentRecords = [];
+let editingId = null;
+let messageTimer;
+
+async function api(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    if (!response.ok) {
+        let detail = "Request failed (" + response.status + ")";
+        try {
+            const error = await response.json();
+            if (error.detail) {
+                detail = Array.isArray(error.detail)
+                    ? error.detail.map(e => e.msg).join(", ")
+                    : error.detail;
+            }
+        } catch {}
+        throw new Error(detail);
+    }
+
+    if (response.status === 204) return null;
+    return response.json();
+}
+
+function showMessage(text, type = "success") {
+    const box = document.getElementById("message");
+    box.textContent = text;
+    box.className = "message show " + type;
+    clearTimeout(messageTimer);
+    messageTimer = setTimeout(() => box.className = "message", 4500);
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#039;"
+    })[char]);
+}
+
+function niceDate(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    return isNaN(date) ? value : date.toLocaleString();
+}
+
+function dateInputValue(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (isNaN(date)) return "";
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
+
+function displayValue(key, value) {
+    if (key === "event_date" || key === "registration_date") return niceDate(value);
+    return value === null || value === undefined || value === "" ? "—" : value;
+}
+
+async function loadPage(page) {
+    currentPage = page;
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === page);
+    });
+    document.getElementById("breadcrumb").textContent =
+        page === "details" ? "Registration Details" :
+        page.charAt(0).toUpperCase() + page.slice(1);
+
+    if (page === "dashboard") return renderDashboard();
+    if (page === "details") return renderDetails();
+    return renderTable(page);
+}
+
+function pageHeading(title, subtitle, action = "") {
+    return `
+        <div class="page-heading">
+            <div>
+                <div class="eyebrow">EVENT MANAGEMENT SYSTEM</div>
+                <h1>${title}</h1>
+                <div class="subtitle">${subtitle}</div>
+            </div>
+            ${action}
+        </div>`;
+}
+
+async function getRecords(resource) {
+    return api(API[resource] + "?skip=0&limit=100");
+}
+
+async function populateSelect(type, selectedValue) {
+    const select = document.getElementById("select-" + type);
+
+    if (!select) {
+        console.error("Dropdown not found:", type);
+        return;
+    }
+
+    const resourceMap = {
+        venue: "venues",
+        event: "events",
+        attendee: "attendees"
+    };
+
+    try {
+        const records = await getRecords(resourceMap[type]);
+
+        select.innerHTML = `<option value="">Select ${type}</option>`;
+
+        records.forEach(record => {
+            const option = document.createElement("option");
+            option.value = record.id;
+            option.textContent = type === "attendee"
+                ? `${record.name} — ${record.email}`
+                : record.name;
+
+            option.selected =
+                String(record.id) === String(selectedValue);
+
+            select.appendChild(option);
+        });
+
+        if (!records.length) {
+            select.innerHTML =
+                '<option value="">No records available</option>';
+        }
+    } catch (error) {
+        console.error("Dropdown error:", error);
+        select.innerHTML =
+            '<option value="">Failed to load options</option>';
+    }
+}
+
+async function renderDashboard() {
+    const root = document.getElementById("pageContent");
+    root.innerHTML = `
+        ${pageHeading("Dashboard", "A central view of your event operations.")}
+        <div class="welcome-panel">
+            <div>
+                <div class="eyebrow" style="color:#8fc5b8">OVERVIEW</div>
+                <h2>Manage every event in one place.</h2>
+                <p>Keep track of venues, events, attendees and registrations.</p>
+            </div>
+            <div class="welcome-date" id="todayDate"></div>
+        </div>
+        <div class="stats" id="stats">
+            <div class="loading">Loading dashboard...</div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Recent Events</h3>
+                <span>Latest scheduled events</span>
+            </div>
+            <div class="table-wrap" id="recentEvents">
+                <div class="loading">Loading events...</div>
+            </div>
+        </div>`;
+
+    document.getElementById("todayDate").textContent =
+        new Date().toLocaleDateString(undefined, {
+            weekday: "long", year: "numeric", month: "long", day: "numeric"
+        });
+
+    try {
+        const [venues, events, attendees, registrations] = await Promise.all([
+            getRecords("venues"), getRecords("events"),
+            getRecords("attendees"), getRecords("registrations")
+        ]);
+
+        const stats = [
+            ["Total Venues", venues.length, "▦"],
+            ["Total Events", events.length, "▣"],
+            ["Total Attendees", attendees.length, "♙"],
+            ["Registrations", registrations.length, "☷"]
+        ];
+
+        document.getElementById("stats").innerHTML = stats.map(item => `
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span>${item[0]}</span>
+                    <div class="stat-icon">${item[2]}</div>
+                </div>
+                <div class="stat-number">${item[1]}</div>
+                <div class="stat-note">Records in the system</div>
+            </div>`).join("");
+
+        const recent = [...events].sort((a,b) =>
+            new Date(b.event_date) - new Date(a.event_date)
+        ).slice(0, 5);
+
+        document.getElementById("recentEvents").innerHTML =
+            recent.length ? `
+            <table>
+                <thead><tr>
+                    <th>Event</th><th>Date</th><th>Venue ID</th><th>Capacity</th>
+                </tr></thead>
+                <tbody>${recent.map(e => `
+                    <tr>
+                        <td class="primary-cell">${escapeHTML(e.name)}</td>
+                        <td>${escapeHTML(niceDate(e.event_date))}</td>
+                        <td>${escapeHTML(e.venue_id)}</td>
+                        <td>${escapeHTML(e.capacity)}</td>
+                    </tr>`).join("")}
+                </tbody>
+            </table>` : `<div class="empty">No events available.</div>`;
+
+    } catch (error) {
+        document.getElementById("stats").innerHTML =
+            `<div class="empty">Could not load dashboard data: ${escapeHTML(error.message)}</div>`;
+        document.getElementById("recentEvents").innerHTML = "";
+    }
+}
+
+async function renderTable(resource, filter = "") {
+    const config = configs[resource];
+    const root = document.getElementById("pageContent");
+
+    root.innerHTML = `
+        ${pageHeading(config.title, config.subtitle,
+            `<button class="btn btn-primary" onclick="openAdd('${resource}')">＋ Add ${config.singular}</button>`)}
+        <div class="panel">
+            <div class="panel-header">
+                <h3>${config.title} Directory</h3>
+                <div class="toolbar">
+                    <input class="search" id="tableSearch" placeholder="Search records..." value="${escapeHTML(filter)}">
+                    <span id="recordCount">Loading...</span>
+                </div>
+            </div>
+            <div class="table-wrap" id="tableArea">
+                <div class="loading">Loading ${config.title.toLowerCase()}...</div>
+            </div>
+        </div>`;
+
+    document.getElementById("tableSearch").addEventListener("input", event => {
+        renderRows(resource, event.target.value);
+    });
+
+    try {
+        currentRecords = await getRecords(resource);
+        renderRows(resource, filter);
+    } catch (error) {
+        document.getElementById("tableArea").innerHTML =
+            `<div class="empty">Unable to load records: ${escapeHTML(error.message)}</div>`;
+        document.getElementById("recordCount").textContent = "Error";
+    }
+}
+
+function renderRows(resource, filter = "") {
+    const config = configs[resource];
+    const query = filter.toLowerCase();
+
+    const records = currentRecords.filter(record =>
+        Object.values(record).some(value =>
+            String(value ?? "").toLowerCase().includes(query)
+        )
+    );
+
+    document.getElementById("recordCount").textContent =
+        records.length + " records";
+
+    document.getElementById("tableArea").innerHTML = records.length ? `
+        <table>
+            <thead><tr>
+                ${config.columns.map(col => `<th>${col[1]}</th>`).join("")}
+                <th>Actions</th>
+            </tr></thead>
+            <tbody>
+                ${records.map(record => `
+                    <tr>
+                        ${config.columns.map((col, index) => `
+                            <td class="${index === 1 ? "primary-cell" : ""}">
+                                ${escapeHTML(displayValue(col[0], record[col[0]]))}
+                            </td>`).join("")}
+                        <td>
+                            <div class="action-cell">
+                                <button class="small-btn" onclick="openEdit('${resource}', ${record.id})">Edit</button>
+                                <button class="small-btn delete" onclick="deleteRecord('${resource}', ${record.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>`).join("")}
+            </tbody>
+        </table>` : `<div class="empty">No records found.</div>`;
+}
+
+async function renderDetails() {
+    const root = document.getElementById("pageContent");
+    root.innerHTML = `
+        ${pageHeading("Registration Details", "A combined view of events, attendees and venues.")}
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Registration Overview</h3>
+                <span>Joined records</span>
+            </div>
+            <div class="table-wrap" id="detailsArea">
+                <div class="loading">Loading registration details...</div>
+            </div>
+        </div>`;
+
+    try {
+        const records = await api(API.details);
+        document.getElementById("detailsArea").innerHTML = records.length ? `
+            <table>
+                <thead><tr>
+                    <th>Registration ID</th><th>Event Name</th>
+                    <th>Attendee Name</th><th>Venue Name</th><th>Status</th>
+                </tr></thead>
+                <tbody>${records.map(record => `
+                    <tr>
+                        <td>${escapeHTML(record.id)}</td>
+                        <td class="primary-cell">${escapeHTML(record.event_name)}</td>
+                        <td>${escapeHTML(record.attendee_name)}</td>
+                        <td>${escapeHTML(record.venue_name)}</td>
+                        <td>${escapeHTML(record.status)}</td>
+                    </tr>`).join("")}
+                </tbody>
+            </table>` : `<div class="empty">No registration details available.</div>`;
+    } catch (error) {
+        document.getElementById("detailsArea").innerHTML =
+            `<div class="empty">Unable to load details: ${escapeHTML(error.message)}</div>`;
+    }
+}
+
+function fieldHTML(field, value = "") {
+    const [name, label, type, required] = field;
+    let html = "";
+
+    if (type === "textarea") {
+        html = `<textarea name="${name}">${escapeHTML(value)}</textarea>`;
+    } else if (type === "select-status") {
+        const options = ["registered", "confirmed", "cancelled", "attended"];
+        html = `<select name="${name}">
+            ${options.map(option => `
+                <option value="${option}" ${value === option ? "selected" : ""}>${option}</option>
+            `).join("")}
+        </select>`;
+    } else if (type === "venue" || type === "event" || type === "attendee") {
+        html = `<select name="${name}" id="select-${type}" required>
+            <option value="">Loading options...</option>
+        </select>`;
+    } else {
+        const inputValue = type === "datetime-local"
+            ? dateInputValue(value)
+            : value ?? "";
+        html = `<input name="${name}" type="${type}"
+            value="${escapeHTML(inputValue)}"
+            ${required ? "required" : ""}
+            ${type === "number" ? 'min="1"' : ""}>`;
+    }
+
+    return `<div class="field">
+        <label>${label}${required ? " *" : ""}</label>
+        ${html}
+    </div>`;
+}
+
+
+
+
+
+async function openAdd(resource) {
+    editingId = null;
+    const config = configs[resource];
+    document.getElementById("modalTitle").textContent = "Add " + config.singular;
+    document.getElementById("saveBtn").textContent = "Create " + config.singular;
+
+    document.getElementById("formFields").innerHTML =
+        config.fields.map(field => fieldHTML(field)).join("");
+
+    document.getElementById("modalBackdrop").classList.add("show");
+    document.getElementById("recordForm").dataset.resource = resource;
+
+    for (const field of config.fields) {
+        if (["venue", "event", "attendee"].includes(field[2])) {
+            await populateSelect(field[2], "");
+        }
+    }
+}
+
+async function openEdit(resource, id) {
+    const record = currentRecords.find(item => item.id === id);
+    if (!record) return;
+
+    editingId = id;
+    const config = configs[resource];
+
+    document.getElementById("modalTitle").textContent = "Edit " + config.singular;
+    document.getElementById("saveBtn").textContent = "Save changes";
+
+    document.getElementById("formFields").innerHTML =
+        config.fields.map(field => fieldHTML(field, record[field[0]])).join("");
+
+    document.getElementById("modalBackdrop").classList.add("show");
+    document.getElementById("recordForm").dataset.resource = resource;
+
+    for (const field of config.fields) {
+        if (["venue", "event", "attendee"].includes(field[2])) {
+            await populateSelect(field[2], record[field[0]]);
+        }
+    }
+}
+
+function closeModal() {
+    document.getElementById("modalBackdrop").classList.remove("show");
+    document.getElementById("recordForm").reset();
+}
+
+document.getElementById("recordForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const resource = form.dataset.resource;
+    const config = configs[resource];
+    const data = {};
+
+    for (const field of config.fields) {
+        const [name, label, type] = field;
+        const input = form.elements[name];
+        let value = input.value;
+
+        if (type === "number") value = Number(value);
+        if (type === "venue" || type === "event" || type === "attendee") {
+            value = Number(value);
+        }
+        if (type === "datetime-local" && value) {
+            value = new Date(value).toISOString();
+        }
+
+        if (value !== "") data[name] = value;
+        else if (type === "textarea") data[name] = "";
+    }
+
+    const saveButton = document.getElementById("saveBtn");
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
+    try {
+        const url = API[resource] + (editingId ? editingId : "");
+        await api(url, {
+            method: editingId ? "PUT" : "POST",
+            body: JSON.stringify(data)
+        });
+
+        closeModal();
+        showMessage(config.singular + (editingId ? " updated" : " created") + " successfully.");
+        await loadPage(resource);
+    } catch (error) {
+        showMessage(error.message, "error");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = editingId ? "Save changes" : "Save record";
+    }
+});
+
+async function deleteRecord(resource, id) {
+    if (!confirm("Are you sure you want to delete this record?")) return;
+
+    try {
+        await api(API[resource] + id, { method: "DELETE" });
+        showMessage("Record deleted successfully.");
+        await loadPage(resource);
+    } catch (error) {
+        showMessage(error.message, "error");
+    }
+}
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+    button.addEventListener("click", () => loadPage(button.dataset.page));
+});
+
+document.getElementById("modalBackdrop").addEventListener("click", event => {
+    if (event.target.id === "modalBackdrop") closeModal();
+});
+
+loadPage("dashboard");
+</script>
+</body>
+</html>

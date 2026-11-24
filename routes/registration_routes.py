@@ -6,6 +6,7 @@ from models.registration import Registration
 from models.event import Event
 from models.attendee import Attendee
 from models.venue import Venue
+from sqlalchemy.exc import IntegrityError
 
 from schemas.registration_schema import (
     RegistrationCreate,
@@ -26,12 +27,12 @@ def get_db():
     finally:
         db.close()
 
+
 @router.post("/", response_model=RegistrationResponse, status_code=201)
 def create_registration(
     registration: RegistrationCreate,
     db: Session = Depends(get_db)
 ):
-
     event = db.query(Event).filter(
         Event.id == registration.event_id
     ).first()
@@ -63,11 +64,19 @@ def create_registration(
         status=registration.status
     )
 
-    db.add(new_registration)
-    db.commit()
-    db.refresh(new_registration)
+    try:
+        db.add(new_registration)
+        db.commit()
+        db.refresh(new_registration)
+        return new_registration
 
-    return new_registration
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Attendee is already registered for this event"
+        )
+
 @router.get("/", response_model=list[RegistrationResponse])
 def get_all_registrations(
     skip: int = 0,
@@ -79,10 +88,12 @@ def get_all_registrations(
 
 
 
+
 @router.get("/details")
 def get_registration_details(db: Session = Depends(get_db)):
 
     details = db.query(
+        Registration.id.label("registration_id"),
         Event.name.label("event_name"),
         Attendee.name.label("attendee_name"),
         Venue.name.label("venue_name"),
@@ -97,6 +108,7 @@ def get_registration_details(db: Session = Depends(get_db)):
 
     return [
         {
+            "id": row.registration_id,
             "event_name": row.event_name,
             "attendee_name": row.attendee_name,
             "venue_name": row.venue_name,
@@ -104,6 +116,7 @@ def get_registration_details(db: Session = Depends(get_db)):
         }
         for row in details
     ]
+
 
 @router.get("/{registration_id}", response_model=RegistrationResponse)
 def get_registration_by_id(

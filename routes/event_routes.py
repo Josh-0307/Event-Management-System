@@ -5,6 +5,7 @@ from database.connection import engine
 from models.event import Event
 from models.venue import Venue
 from schemas.event_schema import EventCreate, EventResponse, EventUpdate
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(
     prefix="/events",
@@ -91,15 +92,27 @@ def update_event(event_id: int, event_data: EventUpdate, db: Session = Depends(g
 
     return event
 
+
 @router.delete("/{event_id}")
 def delete_event(event_id: int, db: Session = Depends(get_db)):
 
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if event is None:
-        raise HTTPException(status_code=404, detail="Event not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Event not found"
+        )
 
-    db.delete(event)
-    db.commit()
+    try:
+        db.delete(event)
+        db.commit()
 
-    return {"message": "Event deleted successfully"}
+        return {"message": "Event deleted successfully"}
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete this event because registrations are linked to it."
+        )
