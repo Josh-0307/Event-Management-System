@@ -1,29 +1,24 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.connection import engine
+from database.connection import get_db
 from models.event import Event
 from models.venue import Venue
 from schemas.event_schema import EventCreate, EventResponse, EventUpdate
-from sqlalchemy.exc import IntegrityError
-
+from auth.dependencies import get_current_user, get_current_admin
 router = APIRouter(
     prefix="/events",
     tags=["Events"]
 )
 
 
-def get_db():
-    db = Session(bind=engine)
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.post("/", response_model=EventResponse, status_code=201)
-def create_event(event: EventCreate, db: Session = Depends(get_db)):
-
+def create_event(
+    event: EventCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     venue = db.query(Venue).filter(Venue.id == event.venue_id).first()
 
     if venue is None:
@@ -43,12 +38,14 @@ def create_event(event: EventCreate, db: Session = Depends(get_db)):
 
     return new_event
 
+
 @router.get("/", response_model=list[EventResponse])
 def get_all_events(
     skip: int = 0,
     limit: int = 10,
     name: str | None = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     query = db.query(Event)
 
@@ -59,18 +56,28 @@ def get_all_events(
 
     return events
 
-@router.get("/{event_id}", response_model=EventResponse)
-def get_event_by_id(event_id: int, db: Session = Depends(get_db)):
 
+@router.get("/{event_id}", response_model=EventResponse)
+def get_event_by_id(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 
     return event
-@router.put("/{event_id}", response_model=EventResponse)
-def update_event(event_id: int, event_data: EventUpdate, db: Session = Depends(get_db)):
 
+
+@router.put("/{event_id}", response_model=EventResponse)
+def update_event(
+    event_id: int,
+    event_data: EventUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if event is None:
@@ -94,25 +101,17 @@ def update_event(event_id: int, event_data: EventUpdate, db: Session = Depends(g
 
 
 @router.delete("/{event_id}")
-def delete_event(event_id: int, db: Session = Depends(get_db)):
-
+def delete_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if event is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Event not found"
-        )
+        raise HTTPException(status_code=404, detail="Event not found")
 
-    try:
-        db.delete(event)
-        db.commit()
+    db.delete(event)
+    db.commit()
 
-        return {"message": "Event deleted successfully"}
-
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Cannot delete this event because registrations are linked to it."
-        )
+    return {"message": "Event deleted successfully"}

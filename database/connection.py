@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL, text
 from database.base import Base
+from sqlalchemy.orm import sessionmaker
 import models
 
 # Load environment variables
@@ -33,4 +34,19 @@ def test_connection():
 if __name__ == "__main__":
     test_connection()
     Base.metadata.create_all(bind=engine)
-    print("All four tables created successfully!")
+    print("All tables created successfully!")
+
+# Create database session
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+# Database dependency for FastAPI
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

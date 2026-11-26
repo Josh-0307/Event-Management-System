@@ -2,26 +2,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.connection import engine
+from database.connection import get_db
 from models.venue import Venue
 from schemas.venue_schema import VenueCreate, VenueResponse, VenueUpdate
+from auth.dependencies import get_current_user, get_current_admin
 router = APIRouter(
     prefix="/venues",
     tags=["Venues"]
 )
 
 
-def get_db():
-    db = Session(bind=engine)
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.post("/", response_model=VenueResponse, status_code=201)
-def create_venue(venue: VenueCreate, db: Session = Depends(get_db)):
-
+def create_venue(
+    venue: VenueCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     new_venue = Venue(
         name=venue.name,
         address=venue.address,
@@ -35,26 +31,39 @@ def create_venue(venue: VenueCreate, db: Session = Depends(get_db)):
 
     return new_venue
 
+
 @router.get("/", response_model=list[VenueResponse])
 def get_all_venues(
     skip: int = 0,
     limit: int = 10,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     venues = db.query(Venue).offset(skip).limit(limit).all()
     return venues
 
+
 @router.get("/{venue_id}", response_model=VenueResponse)
-def get_venue_by_id(venue_id: int, db: Session = Depends(get_db)):
+def get_venue_by_id(
+    venue_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     venue = db.query(Venue).filter(Venue.id == venue_id).first()
 
     if venue is None:
         raise HTTPException(status_code=404, detail="Venue not found")
 
     return venue
-@router.put("/{venue_id}", response_model=VenueResponse)
-def update_venue(venue_id: int, venue_data: VenueUpdate, db: Session = Depends(get_db)):
 
+
+@router.put("/{venue_id}", response_model=VenueResponse)
+def update_venue(
+    venue_id: int,
+    venue_data: VenueUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     venue = db.query(Venue).filter(Venue.id == venue_id).first()
 
     if venue is None:
@@ -70,9 +79,13 @@ def update_venue(venue_id: int, venue_data: VenueUpdate, db: Session = Depends(g
 
     return venue
 
-@router.delete("/{venue_id}")
-def delete_venue(venue_id: int, db: Session = Depends(get_db)):
 
+@router.delete("/{venue_id}")
+def delete_venue(
+    venue_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     venue = db.query(Venue).filter(Venue.id == venue_id).first()
 
     if venue is None:

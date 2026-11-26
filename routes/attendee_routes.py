@@ -1,26 +1,24 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.connection import engine
+from database.connection import get_db
 from models.attendee import Attendee
 from schemas.attendee_schema import AttendeeCreate, AttendeeResponse, AttendeeUpdate
+from auth.dependencies import get_current_user, get_current_admin
+
 router = APIRouter(
     prefix="/attendees",
     tags=["Attendees"]
 )
 
 
-def get_db():
-    db = Session(bind=engine)
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.post("/", response_model=AttendeeResponse, status_code=201)
-def create_attendee(attendee: AttendeeCreate, db: Session = Depends(get_db)):
-
+def create_attendee(
+    attendee: AttendeeCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     existing_attendee = db.query(Attendee).filter(
         Attendee.email == attendee.email
     ).first()
@@ -39,18 +37,25 @@ def create_attendee(attendee: AttendeeCreate, db: Session = Depends(get_db)):
     db.refresh(new_attendee)
 
     return new_attendee
+
+
 @router.get("/", response_model=list[AttendeeResponse])
 def get_all_attendees(
     skip: int = 0,
     limit: int = 10,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     attendees = db.query(Attendee).offset(skip).limit(limit).all()
     return attendees
 
-@router.get("/{attendee_id}", response_model=AttendeeResponse)
-def get_attendee_by_id(attendee_id: int, db: Session = Depends(get_db)):
 
+@router.get("/{attendee_id}", response_model=AttendeeResponse)
+def get_attendee_by_id(
+    attendee_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     attendee = db.query(Attendee).filter(
         Attendee.id == attendee_id
     ).first()
@@ -60,11 +65,13 @@ def get_attendee_by_id(attendee_id: int, db: Session = Depends(get_db)):
 
     return attendee
 
+
 @router.put("/{attendee_id}", response_model=AttendeeResponse)
 def update_attendee(
     attendee_id: int,
     attendee_data: AttendeeUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
 ):
     attendee = db.query(Attendee).filter(
         Attendee.id == attendee_id
@@ -90,9 +97,13 @@ def update_attendee(
 
     return attendee
 
-@router.delete("/{attendee_id}")
-def delete_attendee(attendee_id: int, db: Session = Depends(get_db)):
 
+@router.delete("/{attendee_id}")
+def delete_attendee(
+    attendee_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
+):
     attendee = db.query(Attendee).filter(
         Attendee.id == attendee_id
     ).first()

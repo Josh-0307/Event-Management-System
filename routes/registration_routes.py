@@ -1,12 +1,13 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
-from database.connection import engine
+from database.connection import get_db
 from models.registration import Registration
 from models.event import Event
 from models.attendee import Attendee
 from models.venue import Venue
-from sqlalchemy.exc import IntegrityError
 
 from schemas.registration_schema import (
     RegistrationCreate,
@@ -14,24 +15,18 @@ from schemas.registration_schema import (
     RegistrationUpdate
 )
 
+from auth.dependencies import get_current_user, get_current_admin
 router = APIRouter(
     prefix="/registrations",
     tags=["Registrations"]
 )
 
 
-def get_db():
-    db = Session(bind=engine)
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.post("/", response_model=RegistrationResponse, status_code=201)
 def create_registration(
     registration: RegistrationCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
 ):
     event = db.query(Event).filter(
         Event.id == registration.event_id
@@ -77,21 +72,23 @@ def create_registration(
             detail="Attendee is already registered for this event"
         )
 
+
 @router.get("/", response_model=list[RegistrationResponse])
 def get_all_registrations(
     skip: int = 0,
     limit: int = 10,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     registrations = db.query(Registration).offset(skip).limit(limit).all()
     return registrations
 
 
-
-
 @router.get("/details")
-def get_registration_details(db: Session = Depends(get_db)):
-
+def get_registration_details(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     details = db.query(
         Registration.id.label("registration_id"),
         Event.name.label("event_name"),
@@ -121,7 +118,8 @@ def get_registration_details(db: Session = Depends(get_db)):
 @router.get("/{registration_id}", response_model=RegistrationResponse)
 def get_registration_by_id(
     registration_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     registration = db.query(Registration).filter(
         Registration.id == registration_id
@@ -134,11 +132,14 @@ def get_registration_by_id(
         )
 
     return registration
+
+
 @router.put("/{registration_id}", response_model=RegistrationResponse)
 def update_registration(
     registration_id: int,
     registration_data: RegistrationUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
 ):
     registration = db.query(Registration).filter(
         Registration.id == registration_id
@@ -181,10 +182,13 @@ def update_registration(
     db.refresh(registration)
 
     return registration
+
+
 @router.delete("/{registration_id}")
 def delete_registration(
     registration_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin)
 ):
     registration = db.query(Registration).filter(
         Registration.id == registration_id

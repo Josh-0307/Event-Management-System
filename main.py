@@ -1,13 +1,16 @@
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 from routes.venue_routes import router as venue_router
 from routes.event_routes import router as event_router
 from routes.attendee_routes import router as attendee_router
 from routes.registration_routes import router as registration_router
-from fastapi.staticfiles import StaticFiles
+from routes.auth import router as auth_router
+
 app = FastAPI(
     title="Event Management System",
-    description="Backend API for managing venues, events, attendees and registrations",
+    description="Backend API for managing venues, events, attendees, registrations and authentication",
     version="1.0.0"
 )
 
@@ -19,9 +22,14 @@ def home():
     }
 
 
-# Register Venue API routes
+# Register existing API routes
 app.include_router(venue_router)
 app.include_router(event_router)
 app.include_router(attendee_router)
 app.include_router(registration_router)
+
+# Register Authentication API routes
+app.include_router(auth_router)
+
+# Serve frontend
 app.mount("/app", StaticFiles(directory="frontend", html=True), name="frontend")
