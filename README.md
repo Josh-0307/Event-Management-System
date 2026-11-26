@@ -1,276 +1,395 @@
 # Event Management System
 
-A Web Application for Managing Venues, Events, Attendees, and Registrations.
+A full-stack Event Management System designed to simplify the management of venues, events, attendees, and registrations. The application provides a RESTful API powered by FastAPI, a PostgreSQL database, and an interactive web-based dashboard.
 
-## 1. Project Overview
+The system implements JWT-based authentication and Role-Based Access Control (RBAC), providing separate permissions for regular users and administrators.
 
-The **Event Management System** is a web-based application developed to simplify and organize event management activities. It provides a centralized platform for managing venues, creating events, maintaining attendee information, and handling event registrations.
+---
 
-The application uses FastAPI for backend development, PostgreSQL for database management, and HTML, CSS, and JavaScript for the frontend.
+## Table of Contents
 
-It provides RESTful APIs, data validation, pagination, search functionality, and an interactive dashboard.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [User Roles and Permissions](#user-roles-and-permissions)
+- [API Documentation](#api-documentation)
+- [Authentication and Security](#authentication-and-security)
+- [Installation and Setup](#installation-and-setup)
+- [Running the Application](#running-the-application)
+- [Testing](#testing)
+- [Future Enhancements](#future-enhancements)
 
-## 2. Objectives
+---
 
-- To simplify venue and event management.
-- To maintain attendee information efficiently.
-- To manage event registrations systematically.
-- To establish proper relationships between database tables.
-- To provide reliable REST API operations.
-- To display combined registration information through database joins.
+## Overview
 
-## 3. Technology Stack
+The Event Management System is a web application that provides a centralized platform for managing event-related operations.
 
-| Component | Technology |
-|---|---|
-| Frontend | HTML, CSS, JavaScript |
-| Backend | Python, FastAPI |
-| ORM | SQLAlchemy |
-| Validation | Pydantic |
-| Database | PostgreSQL |
-| API Documentation | Swagger UI, ReDoc |
-| API Testing | Postman |
-| Development Environment | Visual Studio Code |
-| Version Control | Git and GitHub |
+It enables administrators to manage venues, events, attendees, and registrations, while regular users can securely access and view available information.
 
-## 4. Features
+The application follows a modular backend architecture, separating database operations, data models, validation schemas, authentication, and API routes.
 
-### Dashboard
-- Overview of venues, events, attendees, and registrations.
-- Interactive dashboard cards.
-- Navigation between management modules.
+## Key Features
+
+### Authentication and Authorization
+- User registration and login.
+- JWT-based authentication.
+- Secure password hashing using Argon2.
+- Protected API endpoints.
+- Role-Based Access Control (RBAC).
+- Automatic token validation and expiration handling.
 
 ### Venue Management
-- Add new venues.
-- View all venues.
-- Update venue information.
-- Delete venues.
+- Create and manage venue records.
+- View venue information.
+- Update venue details.
+- Delete venue records.
+- Maintain venue address, city, and capacity information.
 
 ### Event Management
 - Create and manage events.
-- Associate events with venues.
-- Search events by name.
-- View and update event information.
+- View event information.
+- Update event details.
+- Delete events.
 
 ### Attendee Management
-- Add attendee details.
-- View attendee records.
-- Update attendee information.
-- Delete attendee records.
-- Validate email addresses.
+- Manage attendee records.
+- View attendee information.
+- Perform administrative record management.
 
 ### Registration Management
-- Register attendees for events.
+- Manage event registrations.
 - View registration records.
-- Update registration status.
-- Delete registrations.
-- Prevent duplicate registrations.
+- Access registration details.
 
-### Registration Details
-- Display registration information using database joins.
-- Show event names, attendee names, and venue names.
+### Interactive Dashboard
+- Dashboard statistics.
+- Dedicated sections for each resource.
+- Search and data table functionality.
+- Add, edit, and delete interfaces.
+- Dynamic form handling.
+- Role-based interface restrictions.
 
-## 5. Database Design
+---
 
-The application uses PostgreSQL with four main tables.
+## Technology Stack
 
-- **venues:** Stores venue details.
-- **events:** Stores event details and venue references.
-- **attendees:** Stores attendee information.
-- **registrations:** Stores event-attendee registration details.
-
-### Entity Relationships
-
-- One venue can have multiple events (One-to-Many).
-- One event can have multiple registrations (One-to-Many).
-- One attendee can have multiple registrations (One-to-Many).
-- Events and attendees have a Many-to-Many relationship through the registrations table.
-
-### Database Constraints
-
-- Primary key constraints.
-- Foreign key constraints.
-- NOT NULL constraints.
-- Unique email constraint for attendees.
-- Unique event-attendee combination in registrations.
-- Timestamp fields for record tracking.
-
-## 6. Business Rules
-
-1. An attendee cannot register for the same event more than once.
-2. Duplicate registrations return HTTP 409 Conflict.
-3. Events with existing registrations cannot be deleted until their linked registrations are removed.
-4. Event and attendee references must exist before a registration can be created.
-
-## 7. API Functionalities
-
-The application provides RESTful API operations for all four modules.
-
-| HTTP Method | Operation | Description |
-|---|---|---|
-| POST | Create | Add a new record |
-| GET | Read | Retrieve records |
-| GET | Read by ID | Retrieve a specific record |
-| PUT | Update | Modify an existing record |
-| DELETE | Delete | Remove a record |
-
-Additional API functionalities:
-
-- Event search by name.
-- Pagination using `skip` and `limit`.
-- Joined registration details.
-
-## 8. HTTP Status Codes
-
-| Status Code | Description |
+| Category | Technologies |
 |---|---|
-| 200 | Successful request |
-| 201 | Record created successfully |
-| 400 | Invalid request |
-| 404 | Requested record not found |
-| 409 | Conflict or duplicate registration |
+| Backend | Python, FastAPI |
+| Frontend | HTML5, CSS3, JavaScript |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy |
+| Data Validation | Pydantic |
+| Authentication | JWT, PyJWT |
+| Password Security | pwdlib, Argon2 |
+| API Testing | Postman |
+| API Documentation | Swagger UI |
+| Version Control | Git, GitHub |
 
-## 9. Project Structure
+---
+
+## System Architecture
+
+The application follows a layered architecture.
+
+**Frontend Layer**
+
+The HTML, CSS, and JavaScript-based interface communicates with the backend through HTTP requests.
+
+**Backend Layer**
+
+FastAPI handles:
+- API routing and request processing.
+- Authentication and authorization.
+- Input validation.
+- Business logic.
+- Database interactions.
+
+**Database Layer**
+
+PostgreSQL stores application data, while SQLAlchemy provides database access and ORM functionality.
+
+### Authentication Flow
+
+1. A user registers or logs in.
+2. The backend validates the submitted credentials.
+3. The password is verified against its stored hash.
+4. A JWT access token is generated after successful authentication.
+5. The frontend includes the token in subsequent API requests.
+6. The backend validates the token and identifies the authenticated user.
+7. Role-based authorization determines whether the requested operation is permitted.
+
+---
+
+## Project Structure
 
 ```text
 EventManagementSystem/
+│
+├── auth/
+│   ├── dependencies.py
+│   └── security.py
 │
 ├── database/
 │   ├── base.py
 │   └── connection.py
 │
 ├── models/
+│   ├── __init__.py
+│   ├── user.py
+│   └── ...
 │
 ├── schemas/
+│   ├── user.py
+│   └── ...
 │
 ├── routes/
+│   ├── auth.py
+│   ├── venue_routes.py
+│   ├── event_routes.py
+│   ├── attendee_routes.py
+│   └── registration_routes.py
 │
 ├── frontend/
 │   └── index.html
 │
-├── EventManagement_API.json
+├── POSTMAN/
+│   └── Documentation.txt
+│
 ├── main.py
-├── .env              (local configuration, not committed)
+├── requirements.txt
+├── .env
 ├── .gitignore
 └── README.md
 ```
 
-## 10. Installation and Setup
+---
+
+## User Roles and Permissions
+
+The application implements two roles:
+
+| Operation | USER | ADMIN |
+|---|:---:|:---:|
+| Login | ✓ | ✓ |
+| View venues | ✓ | ✓ |
+| View events | ✓ | ✓ |
+| View attendees | ✓ | ✓ |
+| View registrations | ✓ | ✓ |
+| Create records | ✗ | ✓ |
+| Update records | ✗ | ✓ |
+| Delete records | ✗ | ✓ |
+
+Administrative operations are protected at the backend level using role-based dependencies.
+
+Frontend restrictions provide an additional user-interface layer but do not replace backend authorization.
+
+---
+
+## API Documentation
+
+The application exposes RESTful API endpoints through FastAPI.
+
+### Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register` | Register a new user |
+| POST | `/auth/login` | Authenticate and obtain an access token |
+
+### Venues
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/venues/` | Retrieve venues |
+| POST | `/venues/` | Create a venue |
+| PUT | `/venues/{venue_id}` | Update a venue |
+| DELETE | `/venues/{venue_id}` | Delete a venue |
+
+### Events
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/events/` | Retrieve events |
+| POST | `/events/` | Create an event |
+| PUT | `/events/{event_id}` | Update an event |
+| DELETE | `/events/{event_id}` | Delete an event |
+
+### Attendees
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/attendees/` | Retrieve attendees |
+| POST | `/attendees/` | Create an attendee |
+| PUT | `/attendees/{attendee_id}` | Update an attendee |
+| DELETE | `/attendees/{attendee_id}` | Delete an attendee |
+
+### Registrations
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/registrations/` | Retrieve registrations |
+| POST | `/registrations/` | Create a registration |
+| PUT | `/registrations/{registration_id}` | Update a registration |
+| DELETE | `/registrations/{registration_id}` | Delete a registration |
+| GET | `/registrations/details` | Retrieve registration details |
+
+For complete request schemas, response formats, and endpoint specifications, refer to the interactive Swagger documentation.
+
+---
+
+## Authentication and Security
+
+The application incorporates the following security mechanisms:
+
+- **JWT Authentication:** Authenticates users through signed access tokens.
+- **Password Hashing:** Uses Argon2 to securely hash passwords.
+- **Role-Based Access Control:** Restricts administrative operations to ADMIN users.
+- **Protected Routes:** Validates authentication before granting access to protected endpoints.
+- **Environment Variables:** Stores sensitive configuration outside the source code.
+- **Backend Authorization:** Enforces permissions independently of frontend controls.
+
+---
+
+## Installation and Setup
 
 ### Prerequisites
 
-- Python 3.x
-- PostgreSQL
-- Visual Studio Code
-- Git
+Ensure the following software is installed:
 
-### Step 1: Clone the Repository
+- Python 3.10 or later
+- PostgreSQL
+- Git
+- Postman (for API testing)
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Josh-0307/Event-Management-System.git
+```
+
+Navigate into the project directory:
+
+```bash
 cd Event-Management-System
 ```
 
-### Step 2: Create a Virtual Environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-Activate it on Windows PowerShell:
+Activate the environment.
 
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-### Step 3: Install Dependencies
+**Windows:**
 
 ```bash
-pip install fastapi uvicorn sqlalchemy "psycopg[binary]" pydantic-settings python-dotenv email-validator
+venv\Scripts\activate
 ```
 
-### Step 4: Configure Environment Variables
+**Linux / macOS:**
 
-Create a `.env` file in the project root and configure your PostgreSQL database connection settings.
+```bash
+source venv/bin/activate
+```
 
-Do not upload your `.env` file or database credentials to GitHub.
+### 3. Install Dependencies
 
-### Step 5: Run the Application
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure PostgreSQL
+
+Create a PostgreSQL database for the application.
+
+### 5. Configure Environment Variables
+
+Create a `.env` file in the project root.
+
+Add the database connection and JWT configuration using the variable names expected by `database/connection.py` and `auth/security.py`.
+
+Keep all credentials and secret keys private.
+
+**Important:** Never commit your `.env` file to GitHub.
+
+### 6. Run the Application
+
+Start the FastAPI development server:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-## 11. Application Access
+---
 
-Once the server is running, access the application using the following URLs:
+## Running the Application
 
-| Application | URL |
+Once the server starts successfully, access the application through the following URLs:
+
+| Resource | URL |
 |---|---|
-| Frontend Dashboard | http://127.0.0.1:8000/app |
-| Swagger UI | http://127.0.0.1:8000/docs |
-| ReDoc Documentation | http://127.0.0.1:8000/redoc |
-| OpenAPI JSON | http://127.0.0.1:8000/openapi.json |
-
-Swagger UI and ReDoc documentation are automatically generated by FastAPI based on the API endpoints and schemas.
-
-## 12. API Testing
-
-The application APIs can be tested using both **Swagger UI** and **Postman**.
-
-### Swagger UI Testing
-
-1. Start the FastAPI backend server.
-2. Open http://127.0.0.1:8000/docs.
-3. Select an API endpoint.
-4. Click **Try it out**.
-5. Enter the required input and execute the request.
-6. Check the response and HTTP status code.
-
-### Postman API Testing
-
-The exported Postman collection is included in the project root:
-
-`EventManagement_API.json`
-
-To import and use the collection:
-
-1. Open Postman.
-2. Click **Import**.
-3. Select the `EventManagement_API.json` file.
-4. Open the imported Event Management System collection.
-5. Make sure the FastAPI backend is running.
-6. Execute the API requests and check the responses.
-
-### Testing Includes
-
-- Creating, retrieving, updating, and deleting records.
-- Validating required fields and email addresses.
-- Checking foreign key relationships.
-- Testing event search and pagination.
-- Verifying duplicate registration prevention.
-- Checking appropriate HTTP response codes.
-- Testing joined registration details.
-
-## 13. Future Enhancements
-
-- User authentication and role-based access.
-- Event booking notifications.
-- Advanced event filtering.
-- Report generation.
-- Exporting registration details.
-
-## 14. Conclusion
-
-The Event Management System demonstrates the development of a full-stack web application using FastAPI, PostgreSQL, and frontend technologies.
-
-It provides an organized approach to managing venues, events, attendees, and registrations while implementing database relationships, validation, business rules, and RESTful API functionality.
+| Web Application | http://127.0.0.1:8000/app/ |
+| Swagger API Documentation | http://127.0.0.1:8000/docs |
+| ReDoc API Documentation | http://127.0.0.1:8000/redoc |
 
 ---
 
-**Project Name:** Event Management System  
-**Backend:** Python – FastAPI  
-**Database:** PostgreSQL  
-**Frontend:** HTML, CSS, JavaScript  
-**API Testing:** Postman and Swagger UI  
-**Repository:** https://github.com/Josh-0307/Event-Management-System
+## Testing
+
+API endpoints and access permissions are tested using **Postman**.
+
+The authentication and authorization testing process includes:
+
+- USER and ADMIN login verification.
+- JWT-protected API access.
+- USER read-access verification.
+- USER write-operation restriction.
+- ADMIN create-operation verification.
+- ADMIN update-operation verification.
+- ADMIN delete-operation verification.
+
+Expected HTTP status codes include:
+
+| Status Code | Meaning |
+|---|---|
+| 200 OK | Request successful |
+| 201 Created | Resource successfully created |
+| 403 Forbidden | User does not have permission |
+| 401 Unauthorized | Authentication required or invalid |
+| 404 Not Found | Requested resource does not exist |
+
+Postman-related documentation is available in the `POSTMAN/` directory.
+
+---
+
+## Future Enhancements
+
+Potential improvements for future versions include:
+
+- Email notifications for event registrations.
+- Event booking and payment integration.
+- Advanced search and filtering.
+- Enhanced dashboard analytics.
+- Event scheduling and calendar integration.
+- Cloud deployment.
+- Automated unit and integration testing.
+
+---
+
+## License
+
+This project is developed as an internship project. Licensing terms can be added as required.
+
+---
+
+## Author
+
+**Event Management System**
+
+GitHub Repository:  
+https://github.com/Josh-0307/Event-Management-System
